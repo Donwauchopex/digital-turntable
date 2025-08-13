@@ -1,0 +1,68 @@
+{
+  "id": "1984",
+  "title": "1984",
+  "artist": "Victoria Darian & Alexei Kalinkin",
+  "artworkUrl": "/demo/albums/1984/cover.jpg",
+  "tracks": [
+    {
+      "id": "01",
+      "title": "Dnevnik",
+      "durationMs": 347167
+    },
+    {
+      "id": "02",
+      "title": "Razminka II",
+      "durationMs": 349544
+    },
+    {
+      "id": "03",
+      "title": "Rabota",
+      "durationMs": 281992
+    },
+    {
+      "id": "04",
+      "title": "Progulka",
+      "durationMs": 187977
+    },
+    {
+      "id": "05",
+      "title": "Esc",
+      "durationMs": 102504
+    },
+    {
+      "id": "06",
+      "title": "Zapiska",
+      "durationMs": 289907
+    },
+    {
+      "id": "07",
+      "title": "Sex",
+      "durationMs": 343980
+    },
+    {
+      "id": "08",
+      "title": "NN",
+      "durationMs": 324989
+    },
+    {
+      "id": "09",
+      "title": "Pitki",
+      "durationMs": 292989
+    },
+    {
+      "id": "10",
+      "title": "F",
+      "durationMs": 323971
+    },
+    {
+      "id": "11",
+      "title": "Julia's Portrait",
+      "durationMs": 174838
+    },
+    {
+      "id": "12",
+      "title": "Razminka I",
+      "durationMs": 357042
+    }
+  ]
+}

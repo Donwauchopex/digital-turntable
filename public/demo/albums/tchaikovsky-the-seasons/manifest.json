@@ -1,0 +1,68 @@
+{
+  "id": "tchaikovsky-the-seasons",
+  "title": "Tchaikovsky - The Seasons",
+  "artist": "Gregor Quendel",
+  "artworkUrl": "/demo/albums/tchaikovsky-the-seasons/cover.jpg",
+  "tracks": [
+    {
+      "id": "01",
+      "title": "January - At the Fireside",
+      "durationMs": 284160
+    },
+    {
+      "id": "02",
+      "title": "February - Carnival",
+      "durationMs": 165433
+    },
+    {
+      "id": "03",
+      "title": "March - Song of the Lark",
+      "durationMs": 147461
+    },
+    {
+      "id": "04",
+      "title": "April - Snowdrop",
+      "durationMs": 130821
+    },
+    {
+      "id": "05",
+      "title": "May - Starlight Nights",
+      "durationMs": 200803
+    },
+    {
+      "id": "06",
+      "title": "June - Barcarolle",
+      "durationMs": 239464
+    },
+    {
+      "id": "07",
+      "title": "July - Song of the Reaper",
+      "durationMs": 115331
+    },
+    {
+      "id": "08",
+      "title": "August - Harvest",
+      "durationMs": 192549
+    },
+    {
+      "id": "09",
+      "title": "September - The Hunt",
+      "durationMs": 167079
+    },
+    {
+      "id": "10",
+      "title": "October - Autumn Song",
+      "durationMs": 194691
+    },
+    {
+      "id": "11",
+      "title": "November - Troika Ride",
+      "durationMs": 181420
+    },
+    {
+      "id": "12",
+      "title": "December - Christmas",
+      "durationMs": 244402
+    }
+  ]
+}

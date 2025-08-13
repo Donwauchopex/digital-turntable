@@ -1,0 +1,55 @@
+@import "tailwindcss";
+
+@theme {
+  /* Responsive turntable sizing - scales based on viewport but maintains proportions */
+  --viewport-min: min(100vw, 100vh);
+  --turntable-scale: clamp(0.4, var(--viewport-min) / 100, 1.2);
+
+  /* Turntable dimensions - all based on the scale factor */
+  --turntable-size: calc(min(90vh, 90vw) * var(--turntable-scale));
+  --arm-width: calc(min(67.5vh, 67.5vw) * var(--turntable-scale));
+  --arm-top-offset: calc(min(35vh, 35vw) * var(--turntable-scale));
+  --arm-left-offset: calc(min(12vh, 12vw) * var(--turntable-scale));
+}
+
+/* Force landscape orientation and minimum dimensions for optimal experience */
+@media (max-width: 1024px) and (orientation: portrait) {
+  body::before {
+    content: "Please rotate your device to landscape mode for the best experience";
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.9);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    font-size: 1.5rem;
+    text-align: center;
+    padding: 2rem;
+  }
+}
+
+/* Minimum viewport size requirements */
+@media (max-width: 1000px), (max-height: 700px) {
+  @theme {
+    --turntable-scale: 0.5;
+  }
+}
+
+/* Very small screens */
+@media (max-width: 800px), (max-height: 600px) {
+  @theme {
+    --turntable-scale: 0.4;
+  }
+}
+
+/* Large screens - allow bigger scaling */
+@media (min-width: 1920px) and (min-height: 1080px) {
+  @theme {
+    --turntable-scale: clamp(0.8, min(90vw, 90vh) / 100, 1.5);
+  }
+}

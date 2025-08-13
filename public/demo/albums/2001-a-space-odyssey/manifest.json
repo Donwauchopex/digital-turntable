@@ -1,0 +1,68 @@
+{
+  "id": "2001-a-space-odyssey",
+  "title": "2001: A Space Odyssey",
+  "artist": "Various Artists",
+  "artworkUrl": "/demo/albums/2001-a-space-odyssey/cover.jpg",
+  "tracks": [
+    {
+      "id": "01",
+      "title": "Overture: Atmospheres",
+      "durationMs": 171572
+    },
+    {
+      "id": "02",
+      "title": "Main Title: Also Sprach Zarathustra (Thus Spake Zarathustra)",
+      "durationMs": 103314
+    },
+    {
+      "id": "03",
+      "title": "Requiem For Soprano, Mezzo Soprano, Two Mixed Choirs & Orchestra",
+      "durationMs": 393378
+    },
+    {
+      "id": "04",
+      "title": "The Blue Danube (Excerpt)",
+      "durationMs": 343850
+    },
+    {
+      "id": "05",
+      "title": "Lux Aeterna",
+      "durationMs": 176222
+    },
+    {
+      "id": "06",
+      "title": "Gayane Ballet Suite (Adagio)",
+      "durationMs": 317179
+    },
+    {
+      "id": "07",
+      "title": "Jupiter And Beyond",
+      "durationMs": 915461
+    },
+    {
+      "id": "08",
+      "title": "Also Sprach Zarathustra (Thus Spake Zarathrustra)",
+      "durationMs": 103758
+    },
+    {
+      "id": "09",
+      "title": "The Blue Danube (Reprise)",
+      "durationMs": 500767
+    },
+    {
+      "id": "10",
+      "title": "Also Sprach Zarathustra (Thus Spake Zarathrustra)",
+      "durationMs": 103027
+    },
+    {
+      "id": "11",
+      "title": "Lux Aeterna",
+      "durationMs": 362449
+    },
+    {
+      "id": "12",
+      "title": "Adventures (Unaltered)",
+      "durationMs": 657868
+    }
+  ]
+}

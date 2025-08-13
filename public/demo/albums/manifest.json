@@ -1,0 +1,20 @@
+[
+  {
+    "id": "2001-a-space-odyssey",
+    "title": "2001: A Space Odyssey",
+    "artist": "Various Artists",
+    "artworkUrl": "/demo/albums/2001-a-space-odyssey/cover.jpg"
+  },
+  {
+    "id": "tchaikovsky-the-seasons",
+    "title": "Tchaikovsky - The Seasons ",
+    "artist": "Gregor Quendel",
+    "artworkUrl": "/demo/albums/tchaikovsky-the-seasons/cover.jpg"
+  },
+  {
+    "id": "1984",
+    "title": "1984",
+    "artist": "Victoria Darian & Alexei Kalinkin",
+    "artworkUrl": "/demo/albums/1984/cover.jpg"
+  }
+]

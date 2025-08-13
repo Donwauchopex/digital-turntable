@@ -1,0 +1,16 @@
+{
+  "name": "digital-turntable",
+  "compatibility_date": "2025-04-03",
+  "assets": {
+    "not_found_handling": "single-page-application",
+  },
+  "routes": [
+    {
+      "pattern": "turntable.donwauchope.com",
+      "custom_domain": true,
+    },
+  ],
+  "vars": {
+    "VITE_SPOTIFY_CLIENT_ID": "009e8774cf4647ef911d07543de2cd93",
+  },
+}
