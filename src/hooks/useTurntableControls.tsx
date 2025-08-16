@@ -20,7 +20,7 @@ export function useTurntableControls(): TurntableControlsState {
     loop: true,
   });
 
-  const [playStartup] = useSound("/startup.aac", {
+  const [playStartup, startupSound] = useSound("/startup.aac", {
     volume: 0.3,
     onend: () => {
       playRunning(); // Start running sound after startup
@@ -29,17 +29,35 @@ export function useTurntableControls(): TurntableControlsState {
 
   const [playTurnoff] = useSound("/turnoff.aac", {
     volume: 0.3,
+    onstart: () => {},
   });
 
   // Handle turntable power state changes and audio
   useEffect(() => {
-    if (isTurntableOn && !runningSound.sound?.playing()) {
+    if (
+      isTurntableOn &&
+      !runningSound.sound?.playing() &&
+      !startupSound.sound?.playing()
+    ) {
+      console.log("Turning on turntable");
       playStartup(); // Play startup sound, which will trigger running sound
-    } else if (!isTurntableOn && runningSound.sound?.playing()) {
+    } else if (
+      !isTurntableOn &&
+      (runningSound.sound?.playing() || startupSound.sound?.playing())
+    ) {
+      console.log("Turning off turntable");
+      startupSound?.stop();
+      runningSound?.stop();
       playTurnoff(); // Play turnoff sound
-      runningSound.stop(); // Stop running sound
     }
-  }, [isTurntableOn, playStartup, playRunning, playTurnoff, runningSound]);
+  }, [
+    isTurntableOn,
+    playStartup,
+    playRunning,
+    playTurnoff,
+    runningSound,
+    startupSound,
+  ]);
 
   const toggleTurntablePower = () => {
     setIsTurntableOn((prevPowerState) => !prevPowerState);
