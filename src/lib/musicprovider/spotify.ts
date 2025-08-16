@@ -96,11 +96,9 @@ export class SpotifyProvider implements MusicProvider {
   }
 
   async play(
-    albumId: string,
-    trackId: string,
+    _: string,
+    trackIds: string[],
     dropped = false,
-    stopAfterTrackId?: string,
-    trackIds?: string[],
     positionMs = 0,
   ): Promise<void> {
     const deviceId = this.spotifyDevice?.device_id;
@@ -110,12 +108,12 @@ export class SpotifyProvider implements MusicProvider {
       );
     }
 
-    // TODO: pass all uris remaining on side
-    if (!trackIds) {
+    if (!trackIds || trackIds.length === 0) {
       return;
     }
+
+    const trackId = trackIds[0]; // First track is the current track
     const body: PatchedStartResumePlaybackBody = {
-      // context_uri: `${albumId}`,
       offset: {
         uri: `${trackId}`,
       },

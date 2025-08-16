@@ -21,10 +21,8 @@ export interface MusicProvider {
 
   play(
     albumId: string,
-    trackId: string,
+    trackIds: string[],
     dropped?: boolean,
-    stopAfterTrackId?: string,
-    trackIds?: string[],
     positionMs?: number,
   ): Promise<void>;
   pause(): Promise<void>;

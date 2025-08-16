@@ -60,6 +60,11 @@ export function TurntableArm({
   const onDropRef = useRef<((positionMs: number) => void) | null>(null);
   const onPickupRef = useRef<(() => void) | null>(null);
 
+  const getArmRotation = useCallback(() => {
+    if (!armRef.current) return ARM_ANGLE_REST;
+    return gsap.getProperty(armRef.current, "rotation") as number;
+  }, []);
+
   const [playRunout, runoutSound] = useSound(runoutSfx, {
     volume: 0.7,
     loop: true,
@@ -75,6 +80,11 @@ export function TurntableArm({
     },
   });
 
+  // Create refs for stable references to avoid recreating intervals
+  const runoutSoundRef = useRef(runoutSound);
+  const playRunoutRef = useRef(playRunout);
+  const togglePowerRef = useRef(togglePower);
+
   const [playDrop] = useSound(dropSfx, {
     volume: 0.5,
     onplay: () => {
@@ -85,10 +95,68 @@ export function TurntableArm({
     },
   });
 
-  const currentSideLastTrackId = useMemo(() => {
-    const lastTrack = disk?.tracks[disk.tracks.length - 1];
-    return lastTrack?.id;
+  // Create ref for playDrop after it's declared
+  const playDropRef = useRef(playDrop);
+
+  // Update refs when dependencies change
+  useEffect(() => {
+    runoutSoundRef.current = runoutSound;
+    playRunoutRef.current = playRunout;
+    playDropRef.current = playDrop;
+    togglePowerRef.current = togglePower;
+  }, [runoutSound, playRunout, playDrop, togglePower]);
+
+  // Using the disk data we can predetermine the angle at which the runout sound should play
+  const runoutAtAngle = useMemo(() => {
+    if (!disk || !disk.tracks || disk.tracks.length === 0) {
+      return ARM_END_ANGLE;
+    }
+    // Use deadwaxlengthms to determine the runout angle
+    const deadwaxLengthMs = disk.deadWaxLengthMs;
+    const totalDurationMs = disk.tracks.reduce(
+      (acc, track) => acc + (track.endMs - track.startMs),
+      0,
+    );
+    const runoutAngle =
+      ARM_END_ANGLE -
+      (deadwaxLengthMs / SingleSideMaxDurationMs) *
+        (ARM_END_ANGLE - ARM_START_ANGLE);
+    console.log(
+      "Calculated runout angle:",
+      runoutAngle,
+      "for deadwax length:",
+      deadwaxLengthMs,
+      "and total duration:",
+      totalDurationMs,
+    );
+    return runoutAngle;
   }, [disk]);
+
+  // When the arm angle exceeds the runout angle, we play the runout sound
+  // We need to poll the arm rotation periodically to check if it exceeds the runout angle
+  useEffect(() => {
+    const checkRunout = () => {
+      const angle = getArmRotation();
+      if (!isTurntableOn) {
+        return;
+      }
+      if (angle >= runoutAtAngle && !runoutSoundRef.current.sound?.playing()) {
+        console.log("Arm angle exceeded runout angle, playing runout sound");
+        playRunoutRef.current();
+      } else if (
+        angle < runoutAtAngle &&
+        runoutSoundRef.current.sound?.playing()
+      ) {
+        console.log("Arm angle below runout angle, pausing runout sound");
+        runoutSoundRef.current.pause();
+      }
+    };
+
+    if (isTurntableOn) {
+      const intervalId = setInterval(checkRunout, 1000);
+      return () => clearInterval(intervalId);
+    }
+  }, [runoutAtAngle, isTurntableOn, getArmRotation]);
 
   const handleArmPickup = useCallback(() => {
     console.log("Arm picked up");
@@ -112,7 +180,7 @@ export function TurntableArm({
     ): {
       trackId: string;
       localPositionMs: number;
-    } => {
+    } | null => {
       if (!disk) {
         console.warn("No disk present, cannot get track from position.");
         return null;
@@ -129,10 +197,6 @@ export function TurntableArm({
       );
 
       if (!track) {
-        console.warn("No track found for position:", positionMs);
-        if (!runoutSound.sound?.playing()) {
-          playRunout();
-        }
         return null;
       }
 
@@ -151,7 +215,7 @@ export function TurntableArm({
         localPositionMs,
       };
     },
-    [disk, playRunout],
+    [disk],
   );
 
   const handleArmDrop = useCallback(
@@ -163,18 +227,24 @@ export function TurntableArm({
         return;
       }
 
+      const trackIds = disk?.tracks.map((track) => track.id) || [];
+      // Find current track position and create array from current track onwards
+      const currentTrackIndex = trackIds.findIndex(
+        (id) => id === track.trackId,
+      );
+      const remainingTrackIds =
+        currentTrackIndex >= 0
+          ? trackIds.slice(currentTrackIndex)
+          : [track.trackId];
+
       music.play(
         albumId,
-        track.trackId,
+        remainingTrackIds,
         true,
-        currentSideLastTrackId,
-        disk?.tracks.map((track) => {
-          return track.id;
-        }),
         Math.floor(track.localPositionMs),
       );
     },
-    [albumId, music, getTrackFromPosition, currentSideLastTrackId, disk],
+    [albumId, music, getTrackFromPosition, disk],
   );
 
   const handleArmResume = useCallback(
@@ -184,24 +254,25 @@ export function TurntableArm({
       if (!track) {
         return;
       }
+      const trackIds = disk?.tracks.map((track) => track.id) || [];
+      // Find current track position and create array from current track onwards
+      const currentTrackIndex = trackIds.findIndex(
+        (id) => id === track.trackId,
+      );
+      const remainingTrackIds =
+        currentTrackIndex >= 0
+          ? trackIds.slice(currentTrackIndex)
+          : [track.trackId];
+
       music.play(
         albumId,
-        track.trackId,
+        remainingTrackIds,
         false,
-        currentSideLastTrackId,
-        disk?.tracks.map((track) => {
-          return track.id;
-        }),
         Math.floor(track.localPositionMs),
       );
     },
-    [albumId, music, getTrackFromPosition, currentSideLastTrackId, disk],
+    [albumId, music, getTrackFromPosition, disk],
   );
-
-  const getArmRotation = useCallback(() => {
-    if (!armRef.current) return ARM_ANGLE_REST;
-    return gsap.getProperty(armRef.current, "rotation") as number;
-  }, []);
 
   useEffect(() => {
     console.log("Turntable power state changed:", isTurntableOn);
@@ -238,7 +309,10 @@ export function TurntableArm({
               duration: SingleSideMaxDurationMs / 1000,
               ease: "none",
             });
-            handleArmResume(0); // Should be play not drop
+            if (disk?.tracks && disk.tracks.length > 0) {
+              const trackIds = disk.tracks.map((track) => track.id);
+              music.play(albumId, trackIds, false, 0);
+            }
           },
         });
       }
@@ -261,7 +335,26 @@ export function TurntableArm({
           duration: remainingMs / 1000,
           ease: "none",
         });
-        handleArmResume(positionMs);
+        if (disk?.tracks && disk.tracks.length > 0) {
+          const positionMs = getPositionFromAngle(currentRotation);
+          const track = getTrackFromPosition(positionMs);
+          if (track) {
+            const trackIds = disk.tracks.map((track) => track.id);
+            const currentTrackIndex = trackIds.findIndex(
+              (id) => id === track.trackId,
+            );
+            const remainingTrackIds =
+              currentTrackIndex >= 0
+                ? trackIds.slice(currentTrackIndex)
+                : [track.trackId];
+            music.play(
+              albumId,
+              remainingTrackIds,
+              false,
+              Math.floor(track.localPositionMs),
+            );
+          }
+        }
       }
     } else {
       console.log("No power or no disk. Killing animation.");
@@ -272,6 +365,9 @@ export function TurntableArm({
       // runoutSound?.stop();
     }
   }, [
+    albumId,
+    music,
+    getTrackFromPosition,
     isTurntableOn,
     disk,
     getArmRotation,
@@ -286,23 +382,12 @@ export function TurntableArm({
     resumeRef.current = handleArmResume;
   }, [handleArmDrop, handleArmPickup, handleArmResume]);
 
-  // Hanlde power down and runout sound
+  // Handle power down and runout sound
   useEffect(() => {
     if (!isTurntableOn && runoutSound?.sound?.playing()) {
       console.log("Stopping runout sound as turntable is off");
       runoutSound.stop();
     }
-    // if (
-    //   power &&
-    //   getArmRotation() >= ARM_END_ANGLE &&
-    //   runoutSound?.sound?.playing()
-    // ) {
-    //   if (armAnimationRef.current) {
-    //     console.log("Stopping runout sound as arm is at end angle");
-    //     armAnimationRef.current.kill();
-    //   }
-    //   runoutSound.stop();
-    // }
   }, [isTurntableOn, runoutSound]);
 
   useGSAP(() => {
@@ -342,8 +427,8 @@ export function TurntableArm({
         }
         if (angle < ARM_START_ANGLE && angle >= ARM_LEAD_IN_START_ANGLE) {
           const extraAngle = angle - ARM_LEAD_IN_START_ANGLE;
-          console.log("Arm is in lead-in area,extra angle:", extraAngle);
-          playDrop(); // ONEOFF other drops are handled in play
+          console.log("Arm is in lead-in area, extra angle:", extraAngle);
+          playDropRef.current(); // Play drop sound for manual lead-in drop
           // Use 1 degree per second for lead-in area
           const duration =
             (Math.abs(extraAngle) / 360) * SingleSideMaxDurationMs;
@@ -407,25 +492,27 @@ export function TurntableArm({
 
   // Periodically read the arm ref rotation
   useEffect(() => {
+    if (!isTurntableOn) return;
+
     const intervalId = setInterval(() => {
       const angle = getArmRotation();
       setArmAngle(angle);
       if (angle >= ARM_END_ANGLE) {
         // Pause the runout sound if arm is at end angle
-        if (runoutSound.sound?.playing()) {
+        if (runoutSoundRef.current.sound?.playing()) {
           console.log("Pausing runout sound as arm is at end angle");
-          runoutSound.pause();
+          runoutSoundRef.current.pause();
         }
         // Cut the power
         if (isTurntableOn) {
           console.log("Cutting power as arm is at end angle");
-          togglePower();
+          togglePowerRef.current();
         }
       }
-    }, 1000);
+    }, 100);
 
     return () => clearInterval(intervalId);
-  }, [getArmRotation, setArmAngle, runoutSound, isTurntableOn, togglePower]);
+  }, [setArmAngle, isTurntableOn, getArmRotation]);
 
   useEffect(() => {
     if (!isTurntableOn) {

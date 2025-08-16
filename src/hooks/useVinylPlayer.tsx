@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import type { VinylAnimationRef } from "../components/vinyl/Vinyl";
 import { ARM_ANGLE_NO_INTERSECT } from "../constants/arm";
 import type {
   MusicProvider,
@@ -6,11 +7,6 @@ import type {
 } from "../lib/musicprovider/musicprovider";
 import type { VinylData, VinylDisk } from "../lib/vinyldata";
 import { CalculateVinylData } from "../lib/vinyldata";
-
-export interface VinylAnimationRef {
-  animateOut: () => Promise<void>;
-  animateIn: () => Promise<void>;
-}
 
 export interface VinylPlayerState {
   playbackState: PlaybackState | null;
@@ -20,7 +16,7 @@ export interface VinylPlayerState {
   shouldStartOffscreen: boolean;
   changeDisk: (newDisk?: VinylDisk) => Promise<void>;
   flipDisk: () => boolean;
-  vinylRef: React.RefObject<VinylAnimationRef>;
+  vinylRef: React.RefObject<VinylAnimationRef | null>;
 }
 
 export function useVinylPlayer({

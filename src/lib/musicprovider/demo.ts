@@ -96,12 +96,18 @@ export class DemoProvider implements MusicProvider {
 
   async play(
     albumId: string,
-    trackId: string,
+    trackIds: string[],
     dropped = false,
-    stopAfterTrackId?: string,
-    trackIds?: string[],
     positionMs = 0,
   ): Promise<void> {
+    if (!trackIds || trackIds.length === 0) {
+      return;
+    }
+
+    const trackId = trackIds[0]; // First track is the current track
+    const stopAfterTrackId =
+      trackIds.length > 1 ? trackIds[trackIds.length - 1] : undefined; // Last track to stop after
+
     console.log("Trying to play ", albumId, trackId, positionMs);
     // If there's an existing sound, stop and unload it to free up memory
     if (this.currentSound) {
@@ -138,7 +144,7 @@ export class DemoProvider implements MusicProvider {
           resolve();
         },
 
-        onloaderror: (id, error) => {
+        onloaderror: (_, error) => {
           console.error(`Failed to load ${trackId}:`, error);
           resolve(); // Still resolve to prevent hanging
         },
@@ -152,7 +158,13 @@ export class DemoProvider implements MusicProvider {
           }
           this.getNextTrackId(albumId, trackId).then((nextTrackId) => {
             if (nextTrackId) {
-              this.play(albumId, nextTrackId, false, stopAfterTrackId, 0);
+              // Create a new trackIds array starting from the next track
+              const currentIndex = trackIds.findIndex((id) => id === trackId);
+              const remainingTrackIds =
+                currentIndex >= 0 ? trackIds.slice(currentIndex + 1) : [];
+              if (remainingTrackIds.length > 0) {
+                this.play(albumId, remainingTrackIds, false, 0);
+              }
             } else {
               console.log("No next track available.");
             }

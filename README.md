@@ -29,9 +29,9 @@ VITE_SPOTIFY_CLIENT_ID = "SPOTIFYIDGOESHERE"
 From there you can use bun (or your package manager of choice) to run the vite server with ```bun run dev```.
 
 TODO:
-- [ ] Use trackIds properly in both play() functions
-- [ ] Fix bug with drop sound on lead in
-- [ ] Fix typerrors
+- [x] Use trackIds properly in both play() functions
+- [x] Fix bug with drop sound on lead in
+- [x] Fix typerrors
 - [ ] Remove unneeded logging
-- [ ] Remove useTurntableAudio
-- [ ] Fix script
+- [x] Remove useTurntableAudio
+- [x] Fix armAngleUpdate being laggy for UI
