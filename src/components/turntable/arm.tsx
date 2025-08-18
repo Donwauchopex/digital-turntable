@@ -44,7 +44,6 @@ export function TurntableArm({
   power: isTurntableOn,
   togglePower,
   disk,
-
   setArmAngle,
   style,
   className,
@@ -247,6 +246,24 @@ export function TurntableArm({
     [albumId, music, getTrackFromPosition, disk],
   );
 
+  // Helper function to update arm angle and handle end conditions
+  const updateArmAngle = useCallback(() => {
+    const angle = getArmRotation();
+    setArmAngle(angle);
+    if (angle >= ARM_END_ANGLE) {
+      // Pause the runout sound if arm is at end angle
+      if (runoutSoundRef.current.sound?.playing()) {
+        console.log("Pausing runout sound as arm is at end angle");
+        runoutSoundRef.current.pause();
+      }
+      // Cut the power
+      if (isTurntableOn) {
+        console.log("Cutting power as arm is at end angle");
+        togglePowerRef.current();
+      }
+    }
+  }, [getArmRotation, setArmAngle, isTurntableOn]);
+
   const handleArmResume = useCallback(
     (positionMs: number) => {
       console.log("Arm resumed at position:", positionMs);
@@ -303,11 +320,13 @@ export function TurntableArm({
           rotation: ARM_START_ANGLE,
           duration: duration / 1000,
           ease: "none",
+          onUpdate: updateArmAngle,
           onComplete: () => {
             armAnimationRef.current = gsap.to(armRef.current, {
               rotation: ARM_END_ANGLE,
               duration: SingleSideMaxDurationMs / 1000,
               ease: "none",
+              onUpdate: updateArmAngle,
             });
             if (disk?.tracks && disk.tracks.length > 0) {
               const trackIds = disk.tracks.map((track) => track.id);
@@ -334,6 +353,7 @@ export function TurntableArm({
           rotation: ARM_END_ANGLE,
           duration: remainingMs / 1000,
           ease: "none",
+          onUpdate: updateArmAngle,
         });
         if (disk?.tracks && disk.tracks.length > 0) {
           const positionMs = getPositionFromAngle(currentRotation);
@@ -374,6 +394,7 @@ export function TurntableArm({
     getPositionFromAngle,
     handleArmResume,
     playDrop,
+    updateArmAngle,
   ]);
 
   useEffect(() => {
@@ -412,6 +433,7 @@ export function TurntableArm({
         setIsArmLifted(false);
         const angle = draggableRef.current?.rotation || ARM_ANGLE_REST;
         console.log("start drop: angle", angle);
+        setArmAngle(angle);
 
         if (!trackableRef.current) {
           console.log(
@@ -441,11 +463,13 @@ export function TurntableArm({
             rotation: ARM_START_ANGLE,
             duration: duration / 1000,
             ease: "none",
+            onUpdate: updateArmAngle,
             onComplete: () => {
               armAnimationRef.current = gsap.to(armRef.current, {
                 rotation: ARM_END_ANGLE,
                 duration: SingleSideMaxDurationMs / 1000,
                 ease: "none",
+                onUpdate: updateArmAngle,
               });
               resumeRef.current?.(0);
             },
@@ -465,6 +489,7 @@ export function TurntableArm({
             rotation: ARM_END_ANGLE,
             duration: remainingMs / 1000,
             ease: "none",
+            onUpdate: updateArmAngle,
           });
           onDropRef.current?.(positionMs);
           return;
@@ -489,30 +514,6 @@ export function TurntableArm({
       ease: "power2.out",
     });
   }, [isArmLifted]);
-
-  // Periodically read the arm ref rotation
-  useEffect(() => {
-    if (!isTurntableOn) return;
-
-    const intervalId = setInterval(() => {
-      const angle = getArmRotation();
-      setArmAngle(angle);
-      if (angle >= ARM_END_ANGLE) {
-        // Pause the runout sound if arm is at end angle
-        if (runoutSoundRef.current.sound?.playing()) {
-          console.log("Pausing runout sound as arm is at end angle");
-          runoutSoundRef.current.pause();
-        }
-        // Cut the power
-        if (isTurntableOn) {
-          console.log("Cutting power as arm is at end angle");
-          togglePowerRef.current();
-        }
-      }
-    }, 100);
-
-    return () => clearInterval(intervalId);
-  }, [setArmAngle, isTurntableOn, getArmRotation]);
 
   useEffect(() => {
     if (!isTurntableOn) {
